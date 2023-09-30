@@ -5,11 +5,16 @@ namespace App\Config;
 abstract class Model
 {
     private static $connection;
-    private static  $PATH_TO_SQLITE_FILE = __DIR__ . DIRECTORY_SEPARATOR .  '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'db\sqlite.db';
+    private static $PATH_TO_SQLITE_FILE = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'db\sqlite.db';
     protected $table;
-    private $colunsQuery;
     private $query;
     private $where = array();
+
+    /**
+     * Construtor da classe Model.
+     *
+     * @param array $attributes Atributos opcionais.
+     */
     public function __construct(array $attributes = [])
     {
         if (self::$connection == null) {
@@ -20,7 +25,7 @@ abstract class Model
     /**
      * Obter todos os registros.
      *
-     * @param array $columns As colunas a serem selecionadas.
+     * @param array $columns As colunas a serem selecionadas (opcional).
      * @return array Retorna os registros correspondentes.
      */
     public function all($columns = ['*'])
@@ -32,12 +37,12 @@ abstract class Model
      * Adicionar condições WHERE dinamicamente.
      *
      * @param array $conditions As condições para a cláusula WHERE.
-     * @return $this
+     * @return void
      */
     public function addWhere(array $conditions)
     {
         $this->where = array_merge($this->where, $conditions);
-        return $this;
+
     }
 
     /**
@@ -46,7 +51,6 @@ abstract class Model
      * @param array $columns As colunas a serem selecionadas.
      * @return array Retorna os resultados da consulta.
      */
-
     public function select($columns)
     {
         $this->columnsQuery = implode(', ', $columns);
@@ -61,6 +65,12 @@ abstract class Model
         return $this->fetch();
     }
 
+    /**
+     * Inserir um novo registro.
+     *
+     * @param array $data Os dados a serem inseridos.
+     * @return int|null Retorna o ID do último registro inserido ou null em caso de falha.
+     */
     public function insert($data)
     {
         $columns = implode(', ', array_keys($data));
@@ -72,20 +82,35 @@ abstract class Model
         return self::$connection->lastInsertId();
     }
 
-    public function update($data, $id)
+    /**
+     * Atualizar registros com base em condições WHERE.
+     *
+     * @param array $data Os dados a serem atualizados.
+     * @return bool Retorna true em caso de sucesso ou false em caso de falha.
+     */
+    public function update($data)
     {
         $set = [];
         foreach ($data as $key => $value) {
-            $set[] = "{$key} = :{$key}";
+            $set[] = "{$key} = '{$value}'";
         }
         $set = implode(', ', $set);
-        $sql = "UPDATE {$this->table} SET {$set} WHERE id = :id";
-
-        $data['id'] = $id;
+        $whereClause = $this->buildWhereClause();
+        if ($whereClause != '') {
+            $sql = "UPDATE {$this->table} SET {$set} {$whereClause}";
+        } else {
+            return false;
+        }
         $query = self::$connection->prepare($sql);
-        return $query->execute($data);
+        return $query->execute();
     }
 
+    /**
+     * Excluir um registro com base no ID.
+     *
+     * @param int $id O ID do registro a ser excluído.
+     * @return bool Retorna true em caso de sucesso ou false em caso de falha.
+     */
     public function delete($id)
     {
         $sql = "DELETE FROM {$this->table} WHERE id = :id";
@@ -94,9 +119,8 @@ abstract class Model
         return $query->execute(['id' => $id]);
     }
 
-
     /**
-     * Concatena as condições de WHERE.
+     * Concatenar as condições de WHERE.
      *
      * @return string As condições de WHERE concatenadas.
      */
@@ -114,7 +138,6 @@ abstract class Model
 
         return $whereClause .= implode(' AND ', $conditionsArray);
     }
-
 
     private function fetch()
     {
