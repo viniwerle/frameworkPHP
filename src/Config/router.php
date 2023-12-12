@@ -1,7 +1,9 @@
 <?php
 
 namespace App\Config;
+
 use App\Controller\PainelController;
+use App\Controller\PublicController;
 
 class Router
 {
@@ -9,6 +11,7 @@ class Router
     protected $method;
     protected $routes = [
         'GET' => [
+            '/publico/css/{arquivo}' => [PublicController::class, 'css'],
             '/' => [PainelController::class, 'Index'],
             '/user/{id}' => [PainelController::class, 'Usuarios'],
             '/teste/a/{id}' => [PainelController::class, 'Index'],

@@ -5,17 +5,21 @@ namespace App\Controller;
 use App\Config\Render;
 use App\Models\Users;
 
-//use app\Models\Users;
-
 class PainelController
 {
 
+    private $users;
+
+    public function __construct()
+    {
+
+        $this->users = new Users();
+    }
     public function Index()
     {
-        Render::page('Usuarios\index');
-        $a = new Users();
-        $a->addWhere(['id' => 1]);
-        var_dump($a->all());
+        $title = 'TESTE';
+        $u = $this->users->all();
+        Render::page('Usuarios\index', compact('title', 'u'));
     }
 
     public function Usuarios($request)
