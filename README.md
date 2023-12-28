@@ -1,4 +1,11 @@
-Um pequeno estudo de MVC simples em php;
-Banco de dados em SQLite. 
-Utilizando Bootstrap como framework CSS.
-Para utilizar, rodar o camando "PHP -S localhost:8000" na pasta /public_html
+Um projeto para estudo da criação de um framework PHP, utilizando MVC e CRUD;
+
+Para iniciar utilizando docker, execute o comando para criar o container
+`Docker compose build`
+
+E após, para iniciar o código:
+`Docker compose run -d`
+
+Após isso a pagina web poderá ser acessada em `localhost:8000` e o MYSQL no endereço `localhost:3388`
+
+O framework utilizado para o frontend é o [AdminLTE](https://github.com/ColorlibHQ/AdminLTE)
