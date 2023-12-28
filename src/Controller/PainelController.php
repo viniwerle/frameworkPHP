@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Config\jwtSecurity;
 use App\Config\Render;
 use App\Models\Users;
 
@@ -17,14 +18,16 @@ class PainelController
     }
     public function Index()
     {
-        $title = 'TESTE';
-        $u = $this->users->all();
-        Render::page('Usuarios\index', compact('title', 'u'));
+        $title = 'Titulo 01';
+        $id = jwtSecurity::idLogin();   
+        $u = $this->users->getById($id);
+        $username = $u['Name'];
+        Render::page('Usuarios/index', compact('title', 'u','username'));
     }
 
     public function Usuarios($request)
     {
-        echo "Users   ";
+        echo "Users";
         echo $request['id'];
     }
 }
