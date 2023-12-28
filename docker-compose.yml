@@ -1,0 +1,48 @@
+version: "3.7"
+
+services:
+    # image project
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        restart: always
+        working_dir: /var/www/public_html
+        volumes:
+            - ./:/var/www
+        networks:
+            - DockerNetwork
+
+    # nginx
+    nginx:
+        image: nginx:alpine
+        restart: unless-stopped
+        ports:
+            - "8000:80"
+        volumes:
+            - ./:/var/www
+            - ./docker/nginx/:/etc/nginx/conf.d/
+        networks:
+            - DockerNetwork
+
+    # db mysql
+    db:
+        image: mysql:5.7.22
+        platform: linux/x86_64
+        restart: unless-stopped
+        environment:
+            MYSQL_USER: username
+            MYSQL_PASSWORD: userpass
+            MYSQL_DATABASE: frameworkDB
+            MYSQL_ROOT_PASSWORD: senhaForte
+        volumes:
+            - .docker/mysql/dbdata:/var/lib/mysql
+        ports:
+            - "3388:3306"
+        networks:
+            - DockerNetwork
+
+networks:
+    DockerNetwork:
+        driver: bridge
+        
